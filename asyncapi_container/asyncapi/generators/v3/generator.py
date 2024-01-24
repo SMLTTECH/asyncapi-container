@@ -12,7 +12,7 @@ from asyncapi_container.containers.v3.simple_spec import SimpleSpecV3
 class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
     asyncapi_spec_container: SimpleSpecV3
 
-    def as_dict(self) -> dict:
+    def parse_spec_container(self) -> AsyncAPIV3Root:
         channels = defaultdict(dict)
         operations = defaultdict(dict)
         components = defaultdict(dict)
@@ -88,4 +88,14 @@ class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
             channels=channels,
             components=components,
             operations=operations,
-        ).dict()
+        )
+
+    def as_dict(self) -> dict:
+        asyncapi_spec_v3_root = self.parse_spec_container()
+
+        return asyncapi_spec_v3_root.dict()
+
+    def as_json(self):
+        asyncapi_spec_v3_root = self.parse_spec_container()
+
+        return asyncapi_spec_v3_root.json()
