@@ -5,6 +5,7 @@ from attr import define
 
 from asyncapi_container.asyncapi.generators.base import AsyncAPISpecGenerator
 from asyncapi_container.asyncapi.spec.v3.root import AsyncAPIV3Root
+from asyncapi_container.containers.v3.simple_channels import TopicV3
 from asyncapi_container.containers.v3.simple_spec import SimpleSpecV3
 
 
@@ -54,10 +55,19 @@ class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
             }
 
         for topic, topic_schemas in self.asyncapi_spec_container.receives.items():
-            action_name = f"receive: {topic}"
-            channel_name = f"receive: {topic}"
+            channel_additional_info = {}
+            tags = {}
+            if isinstance(topic, TopicV3):
+                channel_additional_info = topic.dict(by_alias=True, exclude_unset=True)
+                tags = channel_additional_info.get("tags")
+                tags = {"tags": tags} if tags is not None else {}
+                topic = topic.address
+
+            action_name = topic
+            channel_name = topic
 
             channels[channel_name]["address"] = topic
+            channels[channel_name].update(channel_additional_info)
             if "messages" not in channels[channel_name].keys():
                 channels[channel_name]["messages"] = {}
 
@@ -82,6 +92,7 @@ class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
                 "action": "receive",
                 "channel": {"$ref": f"#/channels/{channel_name}"},
             }
+            operations[action_name].update(tags)
 
         return AsyncAPIV3Root(
             info=self.asyncapi_spec_container.info.dict(),
