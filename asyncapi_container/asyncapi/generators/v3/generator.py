@@ -31,8 +31,8 @@ class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
                 tags = {"tags": tags} if tags is not None else {}
                 topic = topic.address
 
-            action_name = f"send: {topic}"
-            channel_name = f"send: {topic}"
+            action_name = topic
+            channel_name = topic
 
             channels[channel_name]["address"] = topic
             channels[channel_name].update(channel_additional_info)
