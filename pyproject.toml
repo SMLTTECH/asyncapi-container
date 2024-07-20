@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "asyncapi-container"
-version = "0.3.0"
+version = "0.3.1"
 description = ""
 authors = ["Sergei Konik <s.konik.dev@gmail.com>"]
 readme = "README.md"
@@ -9,7 +9,7 @@ packages = [{include = "asyncapi_container"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 attrs = "^23.2.0"
-pydantic = "^1.10.4"
+pydantic = ">=1.10.4"
 
 
 [build-system]
