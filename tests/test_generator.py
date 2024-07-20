@@ -38,6 +38,17 @@ class MySpecialServiceAsyncAPISpecV3(SimpleSpecV3):
     sends: RoutingMap = {
         "shop.orders.v1": [
             OrderSchemaV1,
+        ],
+        TopicV3(
+            address="test.topic.v1",
+            title="TESTING TITLE",
+            description="test",
+            summary="testing summary",
+            tags=[
+                Tag(name="test"),
+            ]
+        ): [
+            OrderSchemaV1
         ]
     }
     receives: RoutingMap = {

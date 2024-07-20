@@ -23,10 +23,19 @@ class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
         schemas = components["schemas"]
 
         for topic, topic_schemas in self.asyncapi_spec_container.sends.items():
+            channel_additional_info = {}
+            tags = {}
+            if isinstance(topic, TopicV3):
+                channel_additional_info = topic.dict(by_alias=True, exclude_unset=True)
+                tags = channel_additional_info.get("tags")
+                tags = {"tags": tags} if tags is not None else {}
+                topic = topic.address
+
             action_name = f"send: {topic}"
             channel_name = f"send: {topic}"
 
             channels[channel_name]["address"] = topic
+            channels[channel_name].update(channel_additional_info)
             if "messages" not in channels[channel_name].keys():
                 channels[channel_name]["messages"] = {}
 
@@ -53,6 +62,8 @@ class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
                 "action": "send",
                 "channel": {"$ref": f"#/channels/{channel_name}"},
             }
+            operations[action_name].update(tags)
+
 
         for topic, topic_schemas in self.asyncapi_spec_container.receives.items():
             channel_additional_info = {}
