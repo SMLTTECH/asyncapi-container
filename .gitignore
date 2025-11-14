@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+**/*.pyc
+**/*.swn
+**/*.swo
+*.log
+.~*
+*~
+.env
+.coverage
+

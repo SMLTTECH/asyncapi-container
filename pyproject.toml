@@ -9,7 +9,8 @@ packages = [{include = "asyncapi_container"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 attrs = "^23.2.0"
-pydantic = ">=1.10.4"
+pydantic = ">=2.3.10,<3.0.0"
+
 
 
 [tool.poetry.group.tests.dependencies]

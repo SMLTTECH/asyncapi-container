@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 
 from asyncapi_container.asyncapi.spec.v3.external_docs import ExternalDocs
 
@@ -16,7 +16,5 @@ class Tag(BaseModel):
         alias="externalDocs",
         description="Additional external documentation for this tag.",
     )
-
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 

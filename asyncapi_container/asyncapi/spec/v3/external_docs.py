@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 
 
 class ExternalDocs(BaseModel):
@@ -13,6 +13,4 @@ class ExternalDocs(BaseModel):
         description="REQUIRED. "
                     "The URL for the target documentation. This MUST be in the form of an absolute URL."
     )
-
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)

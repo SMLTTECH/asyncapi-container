@@ -1,9 +1,9 @@
 from typing import Dict, List
 
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 
 from asyncapi_container.asyncapi.spec.v3.info import Info
-from asyncapi_container.custom_types import RoutingMap, TopicName
+from asyncapi_container.custom_types import RoutingMap
 
 
 
@@ -17,6 +17,4 @@ class SimpleSpecV3(BaseModel):
     info: Info = Info(title="My Project", version="0.0.1", description="")
     sends: RoutingMap  = Field(default={}, description="What your service can send. Acting as producer.")
     receives: RoutingMap = Field(default={}, description="What your service can receive. Acting as consumer.")
-
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
