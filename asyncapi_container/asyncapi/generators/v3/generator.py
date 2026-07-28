@@ -1,4 +1,3 @@
-import json
 from collections import defaultdict
 
 from attr import define
@@ -26,7 +25,7 @@ class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
             channel_additional_info = {}
             tags = {}
             if isinstance(topic, TopicV3):
-                channel_additional_info = topic.dict(by_alias=True, exclude_unset=True)
+                channel_additional_info = topic.model_dump(by_alias=True, exclude_unset=True)
                 tags = channel_additional_info.get("tags")
                 tags = {"tags": tags} if tags is not None else {}
                 topic = topic.address
@@ -39,29 +38,18 @@ class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
             if "messages" not in channels[channel_name].keys():
                 channels[channel_name]["messages"] = {}
 
-            send_operation_messages = []
             for topic_schema in topic_schemas:
                 schema_name = topic_schema.__name__
                 message_name = topic_schema.__name__
 
-                json_schema: str = topic_schema.model_json_schema()
-                json_schema = json_schema.replace(
-                    "#/definitions", f"#/components/schemas/{schema_name}/definitions"
+                schemas[schema_name] = topic_schema.model_json_schema(
+                    ref_template=f"#/components/schemas/{schema_name}/$defs/{{model}}"
                 )
-
-                # Fix schema path in pydantic 2
-                json_schema = json_schema.replace(
-                    '"#/$defs/', f'"#/components/schemas/{schema_name}/$defs/'
-                )
-
-                schemas[schema_name] = json.loads(json_schema)
                 messages[message_name] = {
                     "payload": {"$ref": f"#/components/schemas/{schema_name}"}
                 }
 
                 message_ref = {"$ref": f"#/components/messages/{message_name}"}
-                send_operation_messages.append(message_ref)
-                send_operation_messages.append(message_ref)
                 channels[channel_name]["messages"][message_name] = message_ref
 
             operations[action_name] = {
@@ -74,7 +62,7 @@ class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
             channel_additional_info = {}
             tags = {}
             if isinstance(topic, TopicV3):
-                channel_additional_info = topic.dict(by_alias=True, exclude_unset=True)
+                channel_additional_info = topic.model_dump(by_alias=True, exclude_unset=True)
                 tags = channel_additional_info.get("tags")
                 tags = {"tags": tags} if tags is not None else {}
                 topic = topic.address
@@ -87,25 +75,17 @@ class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
             if "messages" not in channels[channel_name].keys():
                 channels[channel_name]["messages"] = {}
 
-            send_operation_messages = []
             for topic_schema in topic_schemas:
                 schema_name = topic_schema.__name__
                 message_name = topic_schema.__name__
 
-                json_schema: str = topic_schema.schema_json()
-                json_schema = json_schema.replace(
-                    "#/definitions", f"#/components/schemas/{schema_name}/definitions"
+                schemas[schema_name] = topic_schema.model_json_schema(
+                    ref_template=f"#/components/schemas/{schema_name}/$defs/{{model}}"
                 )
-                # Fix schema path in pydantic 2
-                json_schema = json_schema.replace(
-                    '"#/$defs/', f'"#/components/schemas/{schema_name}/$defs/'
-                )
-                schemas[schema_name] = json.loads(json_schema)
                 messages[message_name] = {
                     "payload": {"$ref": f"#/components/schemas/{schema_name}"}
                 }
                 message_ref = {"$ref": f"#/components/messages/{message_name}"}
-                send_operation_messages.append(message_ref)
                 channels[channel_name]["messages"][message_name] = message_ref
 
             operations[action_name] = {
@@ -115,7 +95,7 @@ class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
             operations[action_name].update(tags)
 
         return AsyncAPIV3Root(
-            info=self.asyncapi_spec_container.info.dict(),
+            info=self.asyncapi_spec_container.info.model_dump(),
             channels=channels,
             components=components,
             operations=operations,
@@ -124,9 +104,9 @@ class AsyncAPISpecV3Generator(AsyncAPISpecGenerator):
     def as_dict(self) -> dict:
         asyncapi_spec_v3_root = self.parse_spec_container()
 
-        return asyncapi_spec_v3_root.dict()
+        return asyncapi_spec_v3_root.model_dump()
 
     def as_json(self):
         asyncapi_spec_v3_root = self.parse_spec_container()
 
-        return asyncapi_spec_v3_root.json()
+        return asyncapi_spec_v3_root.model_dump_json()

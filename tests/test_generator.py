@@ -82,3 +82,33 @@ def test_generator_asyncapi_v3_jsons_schema():
     validate(instance=asyncapi_v3_definition, schema=asyncapi_v3_json_schema)
     # THEN:
     #   - no errors raised
+
+
+def _iter_refs(node):
+    if isinstance(node, dict):
+        refs = [node["$ref"]] if isinstance(node.get("$ref"), str) else []
+        for value in node.values():
+            refs.extend(_iter_refs(value))
+        return refs
+    if isinstance(node, list):
+        refs = []
+        for item in node:
+            refs.extend(_iter_refs(item))
+        return refs
+    return []
+
+
+def test_generator_resolves_nested_model_refs():
+    asyncapi_generator = AsyncAPISpecV3Generator(
+        asyncapi_spec_container=MySpecialServiceAsyncAPISpecV3(),
+    )
+    document = asyncapi_generator.as_dict()
+
+    refs = _iter_refs(document)
+    assert refs
+    assert not any(ref.startswith("#/$defs/") for ref in refs)
+
+    for ref in refs:
+        node = document
+        for part in ref.removeprefix("#/").split("/"):
+            node = node[part.replace("~1", "/").replace("~0", "~")]
